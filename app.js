@@ -106,7 +106,55 @@
       } catch { msg.textContent = "No microphone? Tap each candle instead."; mic.disabled = false; }
     }), all = btn("Blow them all out", async () => { all.disabled = true; while (!done) { puff(); await sleep(180); } }, "btn soft"), r = row(mic, all);
     balloons(false); const D = duo(s, el("p", "to", "For " + B.name), el("h1", "", "Happy birthday"), msg, r), side2 = D.lastChild; scene(D);
-    async function finish() { done = true; stop(); r.remove(); document.body.classList.add("dark"); msg.textContent = "Wish made…"; await sleep(1500); document.body.classList.remove("dark"); party(9); msg.textContent = "I hope it comes true. Mine already did: it's you."; side2.append(btn(pics.length || preview ? "Hang up the memories" : "Open your gift", () => pics.length || preview ? gallery() : gift())); side2.lastChild.scrollIntoView({ block: "nearest" }); }
+    async function finish() { done = true; stop(); r.remove(); document.body.classList.add("dark"); msg.textContent = "Wish made…"; await sleep(1500); document.body.classList.remove("dark"); party(9); msg.textContent = "I hope it comes true. Mine already did: it's you."; side2.append(btn("One number for you", since)); side2.lastChild.scrollIntoView({ block: "nearest" }); }
+  }
+
+  const met = new Date(B.metOn + "T00:00:00");
+  function since() {
+    const big = el("h1", "bigday"), tick = el("p", "to"), now = new Date(), days = () => Math.floor((Date.now() - met) / 864e5);
+    let nth = 0; for (let y = met.getFullYear(); y <= Math.max(now.getFullYear(), start.getFullYear()); y++) { const d = new Date(start); d.setFullYear(y); if (d > met && d <= Math.max(now, start)) nth++; }
+    const ord = nth + (["th", "st", "nd", "rd"][nth % 10 < 4 && (nth % 100 < 11 || nth % 100 > 13) ? nth % 10 : 0]), d = days(), facts = el("div", "facts");
+    [[Math.floor(d / 7).toLocaleString(), "weeks of you"], [Math.floor((d + met.getDay()) / 7).toLocaleString(), "Sundays"], [ord, "birthday since we met"]].forEach(([n, t]) => { const f = el("div"); f.append(el("b", "", n), el("span", "", t)); facts.append(f); });
+    const heart = svg(`<svg class="gate-rose beat" viewBox="-190 -180 380 360" aria-hidden="true">${Array.from({ length: 24 }, (_, k) => { const t = k / 24 * 6.283, x = 16 * Math.sin(t) ** 3 * 9.5, y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) * 9.5; return F(["rose", "daisy", "peony", "ranunculus"][k % 4], ["hot", "white", "blush", "coral"][k % 4], x, y, .48, k * .07); }).join("")}${F("rose", "red", 0, -8, 1, 1.7)}</svg>`);
+    scene(duo(heart, el("p", "to", `Since ${met.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}, the day we met`), big, tick, facts, row(btn(pics.length || preview ? "Hang up the memories" : "I have a surprise", pics.length || preview ? gallery : popGame))));
+    const id = run, upd = () => { if (id !== run) return clearInterval(t); const x = Date.now() - met; big.textContent = days().toLocaleString() + " days"; tick.textContent = `${Math.floor(x / 36e5) % 24} hours, ${Math.floor(x / 6e4) % 60} minutes, ${Math.floor(x / 1e3) % 60} seconds. Still counting.`; }, t = setInterval(upd, 1000); tick.setAttribute("aria-live", "off"); upd();
+  }
+
+  function popGame() {
+    const box = el("div", "pops"), W2 = [...B.balloonWords], msg = el("p", "hand", "Pop every balloon. They're hiding something."), id = run + 1; let left = W2.length;
+    W2.forEach((ch, k) => {
+      const b = el("button", "pop"); b.setAttribute("aria-label", "Pop balloon " + (k + 1)); b.style.setProperty("--k", k % 4);
+      b.append(svg(`<svg viewBox="-45 -40 90 135" aria-hidden="true"><path d="M0 28Q10 55 0 90" fill="none" stroke="#c9175e" stroke-opacity=".5" stroke-width="1.5"/><path transform="scale(1.25)" d="${HEART}" fill="${["#f0568f", "#ff8fb5", "#d81b60", "#fff6fa"][k % 4]}"/><path d="M-22-18Q-24-6-16 2" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="5" stroke-linecap="round"/></svg>`));
+      b.onclick = () => { b.onclick = null; const q = b.getBoundingClientRect(); pop(q.left + q.width / 2, q.top + q.height / 3, 34, 8); b.classList.add("done"); b.setAttribute("aria-label", ch); b.replaceChildren(el("span", "", ch)); if (!--left) setTimeout(() => { if (id !== run) return; party(8); msg.textContent = "Hidden in every balloon. Hidden in everything I do."; next.hidden = false; next.scrollIntoView({ block: "nearest" }); }, 500); };
+      box.append(b);
+    });
+    const next = btn("Tell me why", jar); next.hidden = true; scene(el("h1", "", "Pop, pop, pop"), msg, box, next);
+  }
+
+  function jar() {
+    let k = 0; const total = B.reasons.length, b = el("button", "jarbtn"), p = el("p", "hand reason", "Tap the jar. I filled it with reasons."), c = el("p", "", "");
+    b.setAttribute("aria-label", "Take a reason from the jar");
+    const spots = Array.from({ length: total }, (_, j) => [72 + (j * 53) % 160, 300 - Math.floor(j / 4) * 52 - (j % 2) * 14, (j * 37) % 50 - 25]);
+    b.append(svg(`<svg class="gift" viewBox="0 0 300 370" aria-hidden="true"><ellipse cx="150" cy="350" rx="110" ry="10" fill="#a80f4c" opacity=".16"/><path d="M60 80Q30 110 34 160V310Q36 345 70 346H230Q264 345 266 310V160Q270 110 240 80Z" fill="#fff" opacity=".55"/>${spots.map(([x, y, a], j) => `<path class="jh" transform="translate(${x} ${y}) rotate(${a}) scale(1.15)" d="${HEART}" fill="${["#d81b60", "#ff8fb5", "#f0568f", "#ffb3cf"][j % 4]}"/>`).join("")}<path d="M60 80Q30 110 34 160V310Q36 345 70 346H230Q264 345 266 310V160Q270 110 240 80Z" fill="none" stroke="#fff" stroke-width="5"/><path d="M58 150Q52 200 56 280" stroke="#fff" stroke-width="9" stroke-linecap="round" fill="none" opacity=".8"/><rect x="52" y="44" width="196" height="40" rx="10" fill="#f0568f"/><rect x="52" y="76" width="196" height="12" rx="6" fill="#d81b60"/>${F("rose", "red", 150, 82, .5)}${F("daisy", "white", 112, 84, .38)}${F("ranunculus", "coral", 188, 84, .4)}</svg>`));
+    const next = btn("Open your gift", gift); next.hidden = true;
+    b.onclick = () => { if (k >= total) return; const hs = b.querySelectorAll(".jh"); hs[total - 1 - k].style.opacity = 0; const q = b.getBoundingClientRect(); pop(q.left + q.width / 2, q.top + 60, 14, 6); p.textContent = B.reasons[k++]; p.classList.remove("in"); void p.offsetWidth; p.style.setProperty("--i", 0); p.classList.add("in"); c.textContent = k < total ? `${k} of ${total}` : "The jar's empty. I could fill a hundred more."; if (k >= 3) next.hidden = false; };
+    scene(duo(b, el("h1", "", "Why I love you"), p, c, row(next)));
+  }
+
+  function coupons() {
+    const g = el("div", "coupons");
+    B.coupons.forEach((t, k) => {
+      const d = el("div", "coupon"), cover = document.createElement("canvas"), x = cover.getContext("2d"); cover.width = 300; cover.height = 170; cover.tabIndex = 0; cover.setAttribute("role", "button"); cover.setAttribute("aria-label", "Scratch coupon " + (k + 1));
+      const gr = x.createLinearGradient(0, 0, 300, 170); gr.addColorStop(0, "#ff8fb5"); gr.addColorStop(.5, "#f0568f"); gr.addColorStop(1, "#d81b60"); x.fillStyle = gr; x.fillRect(0, 0, 300, 170); x.fillStyle = "#fff"; x.font = "26px 'Yeseva One',serif"; x.textAlign = "center"; x.fillText("Scratch me", 150, 94); x.globalCompositeOperation = "destination-out"; x.lineWidth = 46; x.lineCap = "round";
+      let len = 0, lastP = null, open = false; const at = (e) => { const q = cover.getBoundingClientRect(); return [(e.clientX - q.left) / q.width * 300, (e.clientY - q.top) / q.height * 170]; };
+      const reveal = () => { if (open) return; open = true; cover.style.opacity = 0; setTimeout(() => cover.remove(), 450); const q = d.getBoundingClientRect(); pop(q.left + q.width / 2, q.top + q.height / 2, 24, 7); };
+      cover.onpointerdown = (e) => { lastP = at(e); try { cover.setPointerCapture(e.pointerId); } catch {} };
+      cover.onpointermove = (e) => { if (!lastP) return; const n = at(e); x.beginPath(); x.moveTo(...lastP); x.lineTo(...n); x.stroke(); len += Math.hypot(n[0] - lastP[0], n[1] - lastP[1]); lastP = n; if (len > 650) reveal(); };
+      cover.onpointerup = cover.onpointercancel = () => { lastP = null; };
+      cover.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); reveal(); } };
+      d.append(el("small", "", "Good for"), el("b", "", t), el("small", "", "Never expires. Signed, " + B.from), cover); g.append(d);
+    });
+    scene(el("h1", "", "Love coupons"), el("p", "hand", "Scratch them. Take a screenshot. I have to say yes."), g, btn("Send a wish to the sky", wish));
   }
 
   function gallery() {
@@ -123,7 +171,7 @@
       g.append(l);
     }
     if (!pics.length) g.append(el("p", "tip", "Her photos will hang here. Put them in the birthday/photos folder and refresh. (Only you see this, in preview.)"));
-    scene(el("h2", "", "My favourite person, in bloom"), el("p", "hand", "Tap a photo. I wrote something behind each one."), g, btn("Open your gift", gift));
+    scene(el("h2", "", "My favourite person, in bloom"), el("p", "hand", "Tap a photo. I wrote something behind each one."), g, btn("I have a surprise", popGame));
   }
 
   function gift() {
@@ -132,7 +180,7 @@
     b.onclick = async () => {
       b.onclick = null; b.classList.add("opened"); pop(W / 2, H / 2, 130, 14); await sleep(calm ? 0 : 1200);
       const l = el("article", "letter"); B.letter.forEach((x) => l.append(el("p", "", x))); l.append(el("p", "", "Yours, " + B.from));
-      const d = el("div"); d.innerHTML = Flowers.bouquet(); const g = duo(d.firstChild, l, row(btn("Send a wish to the sky", wish))); g.classList.add("withletter"); scene(g);
+      const d = el("div"); d.innerHTML = Flowers.bouquet(); const g = duo(d.firstChild, l, row(btn("There are coupons too", coupons))); g.classList.add("withletter"); scene(g);
     };
     scene(duo(b, el("p", "to", "One more thing"), el("h1", "", "Your gift is waiting"), el("p", "hand", "Tap the box to unwrap it.")));
   }
@@ -168,7 +216,7 @@
       e.style.cssText = `left:${50 + x * 2.55}%;top:${46 - y * 2.75}%;--k:${k / 2}`; h.append(e);
     }
     h.append(el("h2", "", "I love you")); song(); party(16); balloons(true);
-    scene(duo(h, el("p", "to", "Once more, with all my heart,"), el("h1", "", "Happy birthday, " + B.name), el("p", "hand", "Every candle, every year. I want to be there for all of them."), row(btn("Play it again", gate))));
+    scene(duo(h, el("p", "to", "Once more, with all my heart,"), el("h1", "", "Happy birthday, " + B.name), el("p", "hand", `${Math.floor((Date.now() - met) / 864e5).toLocaleString()} days since I met you. I want to be there for every candle still to come.`), row(btn("Play it again", gate))));
   }
 
   (window.BDAY_PICS ? Promise.resolve(BDAY_PICS) : fetch("/photos.json").then((r) => r.json())).catch(() => []).then((p) => { pics = p; preview || Date.now() >= start ? gate() : lock(); });

@@ -59,3 +59,15 @@ input{width:min(100%,430px);padding:1em 1.3em;border-radius:1.4rem;border:2px so
 @media(max-width:800px){.duo{grid-template-columns:1fr;gap:.8rem}.text{gap:.8rem}.cake{height:46dvh}#bouquet{height:34dvh}.gift,.bob{max-height:40dvh}.heart{width:min(86vw,430px)}}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 @media(max-width:800px){.balloons{opacity:.45}}
+.bigday{font-size:clamp(3.2rem,8vw,6rem);font-variant-numeric:tabular-nums}
+.facts{display:flex;flex-wrap:wrap;gap:1rem 2rem}.facts b{display:block;font:400 2.1rem/1.1 var(--display);color:var(--rasp)}
+.pops{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem 1.6rem;width:min(100%,620px)}
+.pop{aspect-ratio:.72;display:grid;place-items:center;animation:bob 2.2s infinite alternate ease-in-out;animation-delay:calc(var(--k)*-.5s)}.pop svg{width:100%;height:100%;overflow:visible}
+.pop.done{animation:none}.pop span{font:400 clamp(3rem,9vw,5.2rem)/1 var(--display);color:var(--rasp);animation:bloom .6s var(--pop) both}
+.jarbtn .gift{max-height:72dvh}.jarbtn:active{transform:scale(.97)}.jh{transition:opacity .4s}.reason{min-height:3.9em;font-size:clamp(1.6rem,2.6vw,2.1rem)}
+.coupons{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;width:min(100%,900px)}
+.coupon{position:relative;aspect-ratio:300/170;background:#fff8fb;border:2px dashed #ff8db8;border-radius:1.1rem;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.4rem}
+.coupon b{font:400 clamp(1rem,2vw,1.4rem)/1.15 var(--display);color:var(--rasp)}.coupon small{font-size:.82rem}
+.coupon canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab;transition:opacity .4s}
+@media(max-width:800px){.coupons{grid-template-columns:1fr 1fr;gap:.8rem}.coupon{aspect-ratio:1.25}.jarbtn .gift{max-height:40dvh}.reason{min-height:3.4em}}
+@media(max-width:800px){.pops{gap:.4rem .3rem}}
