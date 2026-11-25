@@ -198,11 +198,32 @@
         try { const r = await fetch("/wish", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ wish: w }) }); if (!r.ok) throw 0; note.textContent = `${B.from} will know. Consider it half granted.`; }
         catch { go.disabled = tell.disabled = inp.disabled = false; note.textContent = "That didn't send. Try again, or just let it fly."; return; }
       } else note.textContent = "Your secret is safe with the sky.";
-      inp.value = ""; art.classList.add("fly"); await sleep(calm ? 1200 : 4600); if (id === run) finale();
+      inp.value = ""; art.classList.add("fly"); await sleep(calm ? 1200 : 4600); if (id === run) forever();
     };
     const go = btn("Let it fly", () => fly(false)), tell = btn(`Let it fly, and tell ${B.from}`, () => fly(true), "btn soft");
     inp.onkeydown = (e) => { if (e.key === "Enter") fly(false); };
     scene(duo(art, el("h1", "", "Put a wish in a lantern"), note, inp, row(go, tell)));
+  }
+
+  function forever() {
+    const says = ["No", "Are you sure?", "Think again!", "But I made you a cake", "Pretty please?", "Okay, yes!"], play = el("div", "chase"), msg = el("p", "hand", "Choose carefully. One of these buttons is shy.");
+    let c = 0, last = 0, done = false;
+    const ring = svg(`<svg class="gate-rose beat" viewBox="-150 -170 300 320" aria-hidden="true">${[-60, 60, -130, 130].map((r, k) => Flowers.leaf(0, 70, r, .9, .3, k % 2 ? "#79ac78" : "#4f8a5b")).join("")}<path d="M-98-22Q-98-34-86-34H86Q98-34 98-22V74Q98 92 80 92H-80Q-98 92-98 74Z" fill="#d81b60"/><path d="M-84-22H84V34H-84Z" fill="#fff0f6"/><path d="M-98 26H98V74Q98 92 80 92H-80Q-98 92-98 74Z" fill="#b5124f"/><circle cy="4" r="46" fill="none" stroke="#f5b52e" stroke-width="11"/><path d="M-98 26H98V60H-98Z" fill="#b5124f"/><path d="M-26-74L-14-92H14L26-74L0-40Z" fill="#fff" stroke="#ff8db8" stroke-width="3"/><path d="M-26-74H26M-8-74L0-42L8-74L0-92Z" fill="none" stroke="#ff8db8" stroke-width="2"/>${F("rose", "red", -84, 88, .5)}${F("daisy", "white", -46, 100, .42, .6)}${F("ranunculus", "cream", 48, 100, .42, .7)}${F("rose", "hot", 86, 88, .5, .8)}</svg>`);
+    const yes = btn("Yes, forever", () => {
+      if (done) return; done = true; song(); party(14); play.remove(); title.textContent = "Forever it is";
+      msg.textContent = "No take-backs. You're mine, I'm yours, and that's the whole plan.";
+      const next = btn("One last thing", finale); side.append(next); next.scrollIntoView({ block: "nearest" });
+    });
+    const dodge = () => {
+      if (done || performance.now() - last < 280) return; last = performance.now();
+      if (c >= 5) return yes.click();
+      c++; no.textContent = says[c]; yes.style.scale = 1 + c * .06;
+      if (c === 5) { no.style.left = "0px"; no.style.top = "84px"; return; }
+      const maxX = Math.max(0, play.clientWidth - no.offsetWidth), x = c % 2 ? maxX * (.6 + Math.random() * .4) : maxX * Math.random() * .4;
+      no.style.left = x + "px"; no.style.top = [84, 160, 92, 176, 108][c] + "px";
+    };
+    const no = btn(says[0], dodge, "btn soft no"); no.onpointerenter = (e) => { if (e.pointerType === "mouse" && c < 5) dodge(); };
+    const title = el("h1", "", "Will you be mine forever?"); play.append(yes, no); const d = duo(ring, el("p", "to", "Before the candles cool down,"), title, msg, play), side = d.lastChild; scene(d);
   }
 
   function finale() {
